@@ -966,7 +966,6 @@ function open_from_image_info(info, callback, canceled, into_existing_session, f
 	set_magnification(default_magnification);*/
 
 	if (from_session_load) {
-		console.log(info, main_canvas.width, main_canvas.height);
 		createImageBitmap(info.image || info.image_data).then(function (e) { main_ctx.drawImage(e, 0, 0, e.width, e.height) });
 	}
 	else {
