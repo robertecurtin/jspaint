@@ -90,15 +90,14 @@ function update() {
 				c++;
 				if (c > palette.length) palette.push("#FFFFFF");
 				break;
-			case "Pencil":
-			case "Brush":
-				default_tool = get_tool_by_id("TOOL_" + item.toUpperCase());
 			case "Free-Form Select":
 			case "Select":
 			case "Eraser/Color Eraser":
 			case "Fill With Color":
 			case "Pick Color":
 			case "Magnifier":
+			case "Pencil":
+			case "Brush":
 			case "Airbrush":
 			case "Text":
 			case "Line":
@@ -117,6 +116,9 @@ function update() {
 				break;
 		}
 	}
+	default_tool = get_tool_by_id("TOOL_" +
+		["Brush", "Pencil", "Eraser/Color Eraser", "Airbrush", "Line", "Rectangle", "Ellipse", "Rounded Rectangle"]
+			.filter(a => received().includes(a))[0].split("/")[0].replace(" ", "_").toUpperCase());
 	resize_canvas_without_saving_dimensions(w, h);
 	$colorbox.rebuild_palette(palette);
 }
