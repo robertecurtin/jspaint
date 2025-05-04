@@ -20,6 +20,7 @@ $("<button>Connect!</button>").on("click", function () {
 			console.log("Connected to the Archipelago server!", e);
 			slotData = e;
 			$goal_image.src = "images/archipelago/" + slotData.goal_image + ".png";
+			$G.triggerHandler("restore-colors");
 			update();
 			select_tool(default_tool);
 			if (slotData.death_link) {

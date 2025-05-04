@@ -156,8 +156,45 @@ class LocalSession {
 				this.save_image_to_storage_soon();
 			}
 		});
+		this.save_colors = () => {
+			localStore.set(ls_key + "_colors", JSON.stringify(palette), (err) => {
+				if (err) {
+					// @ts-ignore (quotaExceeded is added by storage.js)
+					if (err.quotaExceeded) {
+						storage_quota_exceeded();
+					} else {
+						// e.g. localStorage is disabled
+						// (or there's some other error?)
+						// @TODO: show warning with "Don't tell me again" type option
+					}
+				}
+			});
+		}
+		this.restore_colors = () => {
+			localStore.get(ls_key + "_colors", (err, data) => {
+				if (err) {
+					if (localStorageAvailable) {
+						show_error_message("Failed to retrieve palette from local storage.", err);
+					} else {
+						// @TODO: DRY with storage manager message
+						showMessageBox({
+							message: "Please enable local storage in your browser's settings for local backup. It may be called Cookies, Storage, or Site Data.",
+						});
+					}
+				} else if (data) {
+					palette = JSON.parse(data);
+				} else {
+				}
+			});
+		}
 		$G.on("session-update.session-hook", () => {
 			this.save_image_to_storage_soon();
+		});
+		$G.on("save-colors.session-hook", () => {
+			this.save_colors();
+		});
+		$G.on("restore-colors.session-hook", () => {
+			this.restore_colors();
 		});
 	}
 	end() {
