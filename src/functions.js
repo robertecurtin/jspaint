@@ -972,7 +972,10 @@ function open_from_image_info(info, callback, canceled, into_existing_session, f
 		createImageBitmap(info.image || info.image_data).then(function (e) { main_ctx.drawImage(e, 0, 0, e.width, e.height) });
 	}
 	else {
-		createImageBitmap(info.image || info.image_data).then(function (e) { goal_ctx.drawImage(e, 0, 0, 800, 600) });
+		createImageBitmap(info.image || info.image_data).then(function (e) {
+			goal_ctx.drawImage(e, 0, 0, 800, 600);
+			$G.triggerHandler("save-goal");
+		});
 	}
 	/*apply_file_format_and_palette_info(info);
 	transparency = has_any_transparency(main_ctx);

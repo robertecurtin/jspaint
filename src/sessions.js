@@ -156,6 +156,13 @@ class LocalSession {
 				this.save_image_to_storage_soon();
 			}
 		});
+		localStore.get(ls_key + "_goal", (err, uri) => {
+			if (err) { } else if (uri) {
+				load_image_from_uri(uri).then((info) => {
+					open_from_image_info(info, null, null, true, false);
+				}, (error) => { });
+			} else { }
+		});
 		this.save_colors = () => {
 			localStore.set(ls_key + "_colors", JSON.stringify(palette), (err) => {
 				if (err) {
@@ -187,6 +194,25 @@ class LocalSession {
 				}
 			});
 		}
+		this.save_goal = () => {
+			const save_paused = handle_data_loss();
+			if (save_paused) {
+				return;
+			}
+			log(`Saving goal image to storage: ${ls_key}_goal`);
+			localStore.set(ls_key + "_goal", goal_canvas.toDataURL("image/png"), (err) => {
+				if (err) {
+					// @ts-ignore (quotaExceeded is added by storage.js)
+					if (err.quotaExceeded) {
+						storage_quota_exceeded();
+					} else {
+						// e.g. localStorage is disabled
+						// (or there's some other error?)
+						// @TODO: show warning with "Don't tell me again" type option
+					}
+				}
+			});
+		};
 		$G.on("session-update.session-hook", () => {
 			this.save_image_to_storage_soon();
 		});
@@ -195,6 +221,9 @@ class LocalSession {
 		});
 		$G.on("restore-colors.session-hook", () => {
 			this.restore_colors();
+		});
+		$G.on("save-goal.session-hook", () => {
+			this.save_goal();
 		});
 	}
 	end() {
