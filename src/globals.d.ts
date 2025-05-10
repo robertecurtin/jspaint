@@ -375,6 +375,7 @@ interface Window {
 	TOOL_BRUSH: "TOOL_BRUSH";
 	// app.js
 	canvas_bounding_client_rect: DOMRect;
+	goal_canvas_bounding_client_rect: DOMRect;
 	_open_images_serially: boolean; // for testing
 	$app: JQuery<HTMLDivElement>;
 	$left: JQuery<HTMLDivElement>;

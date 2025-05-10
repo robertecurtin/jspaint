@@ -398,12 +398,14 @@ function to_canvas_coords({ clientX, clientY }, allow_goal) {
 	if (clientX === undefined || clientY === undefined) {
 		throw new TypeError("clientX and clientY must be defined (not {x, y} or x, y or [x, y])");
 	}
-	const rect = window.canvas_bounding_client_rect;
+	const main_rect = window.canvas_bounding_client_rect, goal_rect = window.goal_canvas_bounding_client_rect;
+	const canvas = clientX <= main_rect.width + main_rect.left ? main_canvas : goal_canvas;
+	const rect = clientX <= main_rect.width + main_rect.left ? main_rect : goal_rect;
 	return {
 		x: (allow_goal || selected_tool.name == "Pick Color")
-			? ~~((clientX - rect.left) / rect.width * main_canvas.width) % 810
-			: ~~((clientX - rect.left) / rect.width * main_canvas.width),
-		y: ~~((clientY - rect.top) / rect.height * main_canvas.height),
+			? ~~((clientX - rect.left) / rect.width * canvas.width)
+			: ~~((clientX - rect.left) / rect.width * canvas.width),
+		y: ~~((clientY - rect.top) / rect.height * canvas.height),
 	};
 }
 /**
