@@ -37,7 +37,7 @@ $("<button>Connect!</button>").on("click", function () {
 			})
 			client.items.on("itemsReceived", function (items) {
 				for (var item of items) {
-					if (item.trap) {
+					if (item.name.endsWith("Trap")) {
 						switch (item.name) {
 							case "Undo Trap":
 								undo();
