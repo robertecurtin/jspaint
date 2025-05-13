@@ -2102,7 +2102,7 @@ function go_to_history_node(target_history_node, canceling) {
 		resize_canvas_without_saving_dimensions(w, h);
 	}
 
-	send(calculate_similarity());
+	calculate_similarity();
 
 	$canvas_area.trigger("resize");
 	$G.triggerHandler("session-update"); // autosave
@@ -2218,7 +2218,7 @@ function undoable({ name, icon, use_loose_canvas_changes, soft, assume_saved }, 
 	});
 	current_history_node.futures.push(new_history_node);
 	current_history_node = new_history_node;
-	calculate_similarity();
+	send(calculate_similarity());
 
 	$G.triggerHandler("history-update"); // update history view
 
