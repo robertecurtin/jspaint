@@ -44,6 +44,7 @@ const goal_ctx = goal_canvas.ctx;
 const diff_canvas = window.make_canvas(800, 600);
 diff_canvas.classList.add("goal-canvas");
 diff_canvas.style.display = "none";
+diff_canvas.style.pointerEvents = "none";
 /** @type {PixelContext} */
 const diff_ctx = diff_canvas.ctx;
 
