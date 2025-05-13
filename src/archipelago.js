@@ -74,7 +74,6 @@ function received() {
 }
 
 function onReceive(items) {
-	console.log(items);
 	for (var item of items) {
 		if (item.name.endsWith("Trap")) {
 			switch (item.name) {
