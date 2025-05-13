@@ -2125,9 +2125,11 @@ function calculate_similarity() {
 						Math.abs(main_pixels.data[main_offset + 2] - goal_pixels.data[goal_offset + 2])) / 765;
 				}
 				else {
-					s += 1 - Math.sqrt(((main_pixels.data[main_offset] - goal_pixels.data[goal_offset]) ** 2 +
+					var pixel_similarity = 1 - Math.sqrt(((main_pixels.data[main_offset] - goal_pixels.data[goal_offset]) ** 2 +
 						(main_pixels.data[main_offset + 1] - goal_pixels.data[goal_offset + 1]) ** 2 +
 						(main_pixels.data[main_offset + 2] - goal_pixels.data[goal_offset + 2]) ** 2) / 3) / 255;
+					if (!version_below("0.5.0")) pixel_similarity = 2 * pixel_similarity - 1;
+					s += pixel_similarity;
 				}
 				diff_pixels.data[goal_offset] = 128 + goal_pixels.data[goal_offset] - main_pixels.data[main_offset];
 				diff_pixels.data[goal_offset + 1] = 128 + goal_pixels.data[goal_offset + 1] - main_pixels.data[main_offset + 1];
@@ -2137,6 +2139,7 @@ function calculate_similarity() {
 	}
 	diff_ctx.putImageData(diff_pixels, 0, 0);
 	s /= 4800;
+	s = Math.max(s, 0);
 	$status_similarity.text(s.toFixed(3) + "%/" + calculate_logic_similarity().toFixed(3) + "%");
 	return s;
 }
@@ -2146,20 +2149,23 @@ function calculate_logic_similarity() {
 	var r = Math.min(items.filter(x => x == "Progressive Color Depth (Red)").length, 7);
 	var g = Math.min(items.filter(x => x == "Progressive Color Depth (Green)").length, 7);
 	var b = Math.min(items.filter(x => x == "Progressive Color Depth (Blue)").length, 7);
-	var w = Math.min(items.filter(x => x == "Progressive Canvas Width").length, 4);
-	var h = Math.min(items.filter(x => x == "Progressive Canvas Height").length, 3);
+	var w = Math.min(items.filter(x => x == "Progressive Canvas Width").length * (slotData.canvas_size_increment ?? 100), 400);
+	var h = Math.min(items.filter(x => x == "Progressive Canvas Height").length * (slotData.canvas_size_increment ?? 100), 300);
 	var p = items.includes("Pick Color");
 	if (!p) {
 		r = Math.min(r, 2);
 		g = Math.min(g, 2);
 		b = Math.min(b, 2);
 	}
+	var per_pixel;
 	if (version_below("0.2.0")) {
-		return (((768 - 2 ** (7 - r) - 2 ** (7 - g) - 2 ** (7 - b)) * (4 + w) * (3 + h) * slotData.logic_percent) / 36720);
+		per_pixel = (768 - 2 ** (7 - r) - 2 ** (7 - g) - 2 ** (7 - b)) / 765;
 	}
 	else {
-		return ((765 - Math.sqrt(((2 ** (7 - r) - 1) ** 2 + (2 ** (7 - g) - 1) ** 2 + (2 ** (7 - b) - 1) ** 2) * 3)) * (4 + w) * (3 + h) * slotData.logic_percent / 36720);
+		per_pixel = 1 - (Math.sqrt(((2 ** (7 - r) - 1) ** 2 + (2 ** (7 - g) - 1) ** 2 + (2 ** (7 - b) - 1) ** 2) * 3)) / 765;
+		if (!version_below("0.5.0")) per_pixel = 2 * per_pixel - 1;
 	}
+	return per_pixel * (400 + w) * (300 + h) * slotData.logic_percent / 480000
 }
 
 // Note: This function is part of the API.
