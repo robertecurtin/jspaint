@@ -2139,7 +2139,6 @@ function calculate_similarity() {
 	}
 	diff_ctx.putImageData(diff_pixels, 0, 0);
 	s /= 4800;
-	s = Math.max(s, 0);
 	$status_similarity.text(s.toFixed(3) + "%/" + calculate_logic_similarity().toFixed(3) + "%");
 	return s;
 }
