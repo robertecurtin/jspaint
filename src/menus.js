@@ -26,7 +26,7 @@ const menus = {
 			description: localize("Creates a new document."),
 		},
 		{
-			label: localize("&Open"),
+			label: localize("&Open Goal Image"),
 			...shortcut("Ctrl+O"),
 			speech_recognition: [
 				"open", "open document", "open file", "open an image file", "open a document", "open a file",
