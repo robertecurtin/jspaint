@@ -432,6 +432,8 @@ $goal_image.src = "images/archipelago/1.png";
 window.$goal = $goal;
 window.$goal_image = $goal_image;
 
+const $sim = $(sim_canvas).css("left", "810px").appendTo($canvas_area);
+window.$sim = $sim;
 const $diff = $(diff_canvas).css("left", "810px").appendTo($canvas_area);
 window.$diff = $diff;
 
@@ -1094,7 +1096,13 @@ $G.on("keydown", (e) => {
 				image_attributes();
 				break;
 			case "M":
-				$diff.toggle();
+				if (e.shiftKey) {
+					$sim.toggle();
+					$diff.hide();
+				} else {
+					$diff.toggle();
+					$sim.hide();
+				}
 				break;
 
 			// These shortcuts are mostly reserved by browsers,

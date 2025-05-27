@@ -258,6 +258,7 @@ declare const $bottom: JQuery<HTMLDivElement>;
 declare const $canvas_area: JQuery<HTMLDivElement>;
 declare const $canvas: JQuery<HTMLCanvasElement>;
 declare const $goal: JQuery<HTMLCanvasElement>;
+declare const $sim: JQuery<HTMLCanvasElement>;
 declare const $diff: JQuery<HTMLCanvasElement>;
 declare const $goal_image: JQuery<HTMLImageElement>;
 declare const $colorbox: JQuery<HTMLDivElement> & I$Component & I$ColorBox;
@@ -385,6 +386,7 @@ interface Window {
 	$canvas_area: JQuery<HTMLDivElement>;
 	$canvas: JQuery<HTMLCanvasElement>;
 	$goal: JQuery<HTMLCanvasElement>;
+	$sim: JQuery<HTMLCanvasElement>;
 	$diff: JQuery<HTMLCanvasElement>;
 	$goal_image: JQuery<HTMLImageElement>;
 	$colorbox: JQuery<HTMLDivElement> & I$Component & I$ColorBox;

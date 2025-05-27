@@ -145,6 +145,9 @@ function update_magnified_canvas_size() {
 	$goal.css("width", goal_canvas.width * magnification);
 	$goal.css("height", goal_canvas.height * magnification);
 	$goal.css("left", goal_canvas.width * magnification + 10);
+	$sim.css("width", goal_canvas.width * magnification);
+	$sim.css("height", goal_canvas.height * magnification);
+	$sim.css("left", goal_canvas.width * magnification + 10);
 	$diff.css("width", goal_canvas.width * magnification);
 	$diff.css("height", goal_canvas.height * magnification);
 	$diff.css("left", goal_canvas.width * magnification + 10);
@@ -2113,30 +2116,41 @@ function calculate_similarity() {
 	var s = 0;
 	var main_pixels = main_canvas.ctx.getImageData(0, 0, main_canvas.width, main_canvas.height);
 	var goal_pixels = goal_canvas.ctx.getImageData(0, 0, 800, 600);
+	var sim_pixels = sim_ctx.createImageData(800, 600);
 	var diff_pixels = goal_pixels;
 	for (var x = 0; x < 800; x++) {
 		for (var y = 0; y < 600; y++) {
+			var goal_offset = (x + y * 800) * 4;
 			if (x < main_canvas.width && y < main_canvas.height) {
 				var main_offset = (x + y * main_canvas.width) * 4;
-				var goal_offset = (x + y * 800) * 4;
+				var pixel_similarity = 0;
 				if (version_below("0.2.0")) {
-					s += 1 - (Math.abs(main_pixels.data[main_offset] - goal_pixels.data[goal_offset]) +
+					pixel_similarity = 1 - (Math.abs(main_pixels.data[main_offset] - goal_pixels.data[goal_offset]) +
 						Math.abs(main_pixels.data[main_offset + 1] - goal_pixels.data[goal_offset + 1]) +
 						Math.abs(main_pixels.data[main_offset + 2] - goal_pixels.data[goal_offset + 2])) / 765;
 				}
 				else {
-					var pixel_similarity = 1 - Math.sqrt(((main_pixels.data[main_offset] - goal_pixels.data[goal_offset]) ** 2 +
+					pixel_similarity = 1 - Math.sqrt(((main_pixels.data[main_offset] - goal_pixels.data[goal_offset]) ** 2 +
 						(main_pixels.data[main_offset + 1] - goal_pixels.data[goal_offset + 1]) ** 2 +
 						(main_pixels.data[main_offset + 2] - goal_pixels.data[goal_offset + 2]) ** 2) / 3) / 255;
-					if (!version_below("0.5.0")) pixel_similarity = 2 * pixel_similarity - 1;
-					s += pixel_similarity;
 				}
+				sim_pixels.data[goal_offset] = sim_pixels.data[goal_offset + 1] = sim_pixels.data[goal_offset + 2] = 255 * pixel_similarity;
+				sim_pixels.data[goal_offset + 3] = 255;
 				diff_pixels.data[goal_offset] = 128 + goal_pixels.data[goal_offset] - main_pixels.data[main_offset];
 				diff_pixels.data[goal_offset + 1] = 128 + goal_pixels.data[goal_offset + 1] - main_pixels.data[main_offset + 1];
 				diff_pixels.data[goal_offset + 2] = 128 + goal_pixels.data[goal_offset + 2] - main_pixels.data[main_offset + 2];
+				if (!version_below("0.5.0")) pixel_similarity = 2 * pixel_similarity - 1;
+				s += pixel_similarity;
+			}
+			else {
+				if (version_below("0.5.0"))
+					sim_pixels.data[goal_offset] = sim_pixels.data[goal_offset + 1] = sim_pixels.data[goal_offset + 2] = 0;
+				else
+					sim_pixels.data[goal_offset] = sim_pixels.data[goal_offset + 1] = sim_pixels.data[goal_offset + 2] = 128;
 			}
 		}
 	}
+	sim_ctx.putImageData(sim_pixels, 0, 0);
 	diff_ctx.putImageData(diff_pixels, 0, 0);
 	s /= 4800;
 	$status_similarity.text(s.toFixed(3) + "%/" + calculate_logic_similarity().toFixed(3) + "%");

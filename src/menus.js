@@ -935,12 +935,31 @@ const menus = {
 			description: localize("Enlarges buttons, windows, and menus for easier clicking."),
 		},
 		{
+			label: localize("&Similarity Mode"),
+			...shortcut("Ctrl+Shift+M"),
+			speech_recognition: [],
+			checkbox: {
+				toggle: () => {
+					$sim.toggle();
+					$diff.hide();
+				},
+				check: () => {
+					return $sim.is(":visible");
+				},
+			},
+			enabled: () => {
+				return true;
+			},
+			description: localize("Changes the goal image to show the similarity with the current canvas."),
+		},
+		{
 			label: localize("&Difference Mode"),
 			...shortcut("Ctrl+M"),
 			speech_recognition: [],
 			checkbox: {
 				toggle: () => {
 					$diff.toggle();
+					$sim.hide();
 				},
 				check: () => {
 					return $diff.is(":visible");

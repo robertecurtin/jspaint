@@ -41,6 +41,14 @@ goal_canvas.classList.add("goal-canvas");
 const goal_ctx = goal_canvas.ctx;
 
 /** @type {PixelCanvas} */
+const sim_canvas = window.make_canvas(800, 600);
+sim_canvas.classList.add("goal-canvas");
+sim_canvas.style.display = "none";
+sim_canvas.style.pointerEvents = "none";
+/** @type {PixelContext} */
+const sim_ctx = sim_canvas.ctx;
+
+/** @type {PixelCanvas} */
 const diff_canvas = window.make_canvas(800, 600);
 diff_canvas.classList.add("goal-canvas");
 diff_canvas.style.display = "none";
