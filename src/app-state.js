@@ -56,6 +56,9 @@ diff_canvas.style.pointerEvents = "none";
 /** @type {PixelContext} */
 const diff_ctx = diff_canvas.ctx;
 
+/** @type {boolean} */
+let side_by_side_mode = false;
+
 /** @type {(string | CanvasPattern)[]} */
 let palette = window.default_palette;
 /** @type {(string | CanvasPattern)[]} */

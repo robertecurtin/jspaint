@@ -399,8 +399,9 @@ function to_canvas_coords({ clientX, clientY }, allow_goal) {
 		throw new TypeError("clientX and clientY must be defined (not {x, y} or x, y or [x, y])");
 	}
 	const main_rect = window.canvas_bounding_client_rect, goal_rect = window.goal_canvas_bounding_client_rect;
-	const canvas = clientX <= main_rect.width + main_rect.left || !(allow_goal || selected_tool.name == "Pick Color") ? main_canvas : goal_canvas;
-	const rect = clientX <= main_rect.width + main_rect.left || !(allow_goal || selected_tool.name == "Pick Color") ? main_rect : goal_rect;
+	const use_main_canvas = clientX <= (side_by_side_mode ? ~~($canvas_area.width() / 2) : main_rect.width + main_rect.left) || !(allow_goal || selected_tool.name == "Pick Color")
+	const canvas = use_main_canvas ? main_canvas : goal_canvas;
+	const rect = use_main_canvas ? main_rect : goal_rect;
 	return {
 		x: ~~((clientX - rect.left) / rect.width * canvas.width),
 		y: ~~((clientY - rect.top) / rect.height * canvas.height),

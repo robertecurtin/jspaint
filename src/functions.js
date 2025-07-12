@@ -144,18 +144,24 @@ function update_magnified_canvas_size() {
 	$canvas.css("height", main_canvas.height * magnification);
 	$goal.css("width", goal_canvas.width * magnification);
 	$goal.css("height", goal_canvas.height * magnification);
-	$goal.css("left", goal_canvas.width * magnification + 10);
+	if (!side_by_side_mode) $goal.css("left", goal_canvas.width * magnification + 10);
 	$sim.css("width", goal_canvas.width * magnification);
 	$sim.css("height", goal_canvas.height * magnification);
-	$sim.css("left", goal_canvas.width * magnification + 10);
+	if (!side_by_side_mode) $sim.css("left", goal_canvas.width * magnification + 10);
 	$diff.css("width", goal_canvas.width * magnification);
 	$diff.css("height", goal_canvas.height * magnification);
-	$diff.css("left", goal_canvas.width * magnification + 10);
+	if (!side_by_side_mode) $diff.css("left", goal_canvas.width * magnification + 10);
 
 	update_canvas_rect();
 }
 
 function update_canvas_rect() {
+	if (side_by_side_mode) {
+		$canvas.css("clip-path", "xywh(0 0 " + ~~($canvas_area.width() / 2 + $canvas_area.scrollLeft()) + "px 100%)");
+		$goal.css("clip-path", "xywh(" + ~~($canvas_area.scrollLeft()) + "px 0 100% 100%)");
+		$sim.css("clip-path", "xywh(" + ~~($canvas_area.scrollLeft()) + "px 0 100% 100%)");
+		$diff.css("clip-path", "xywh(" + ~~($canvas_area.scrollLeft()) + "px 0 100% 100%)");
+	}
 	window.canvas_bounding_client_rect = main_canvas.getBoundingClientRect();
 	window.goal_canvas_bounding_client_rect = goal_canvas.getBoundingClientRect();
 
