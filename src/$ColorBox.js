@@ -141,8 +141,10 @@ function $ColorBox(vertical) {
 				if (within_double_click_period && e.button === double_click_button) {
 					show_edit_colors_window($b, color_selection_slot);
 				} else if (e.shiftKey) {
+					palette[$palette.find(".swatch").toArray().indexOf($b[0])] = selected_colors[color_selection_slot];
 					update_$swatch($b, selected_colors[color_selection_slot]);
 					$G.trigger("option-changed");
+					$G.triggerHandler("save-colors");
 				} else {
 					selected_colors[color_selection_slot] = $b.data("swatch");
 					$G.trigger("option-changed");
