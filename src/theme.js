@@ -21,7 +21,8 @@ function wait_for_theme_loaded(theme, callback) {
 
 let grinch_button;
 let current_theme;
-try {
+current_theme = default_theme;
+/*try {
 	const grinch = localStorage[disable_seasonal_theme_key] === "true";
 	const is_december = new Date().getMonth() === 11;
 	if (is_december && !grinch) {
@@ -35,7 +36,7 @@ try {
 } catch (error) {
 	console.error(error);
 	current_theme = default_theme;
-}
+}*/
 
 const theme_link = document.createElement("link");
 theme_link.rel = "stylesheet";
