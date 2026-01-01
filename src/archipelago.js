@@ -128,7 +128,7 @@ function update() {
 			case "Polygon":
 			case "Ellipse":
 			case "Rounded Rectangle":
-				$('#TOOL_' + item.split("/")[0].replace(" ", "_").toUpperCase() + '').removeClass("disabled");
+				$('#TOOL_' + item.split("/")[0].split(" With")[0].replace(" ", "_").replace("-", "_").toUpperCase() + '').removeClass("disabled");
 				break;
 			case "Progressive Canvas Width":
 				if (w < 800) w += slotData.canvas_size_increment ?? 100;
