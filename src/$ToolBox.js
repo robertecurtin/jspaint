@@ -30,6 +30,7 @@ function $ToolBox(tools, is_extras) {
 		$b.appendTo($tools);
 		tool.$button = $b;
 
+		$b.attr("id", tool.id);
 		$b.attr("title", tool.name);
 
 		const $icon = $(E("span")).addClass("tool-icon");
