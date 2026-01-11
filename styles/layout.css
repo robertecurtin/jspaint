@@ -930,7 +930,7 @@ html, body, .jspaint {
 	display: block;
 }
 .storage-manager .thumbnail-container {
-	width: 64px;
+	width: 128px;
 	height: 64px;
 	display: flex;
 	align-items: center;

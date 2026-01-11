@@ -56,10 +56,11 @@ function manage_storage() {
 		$storage_manager.close();
 	});
 
-	const addRow = (k, imgSrc) => {
+	const addRow = (k, imgSrc, imgSrc2) => {
 		const $tr = $(E("tr")).appendTo($table);
 
 		const $img = $(E("img")).attr({ src: imgSrc }).addClass("thumbnail-img");
+		const $img2 = $(E("img")).attr({ src: imgSrc2 }).addClass("thumbnail-img");
 		const $remove = $(E("button")).text("Remove").addClass("remove-button").attr("type", "button");
 		const href = `#${k.replace("image#", "local:")}`;
 		// The Electron app is a single window for now. This isn't a great experience, but it's better than a broken link.
@@ -70,6 +71,7 @@ function manage_storage() {
 		//const $open_link = $(E("a")).attr({ href, target }).text(localize("Open"));
 		const $thumbnail_open_link = $(E("a")).attr({ href, target }).addClass("thumbnail-container");
 		$thumbnail_open_link.append($img);
+		$thumbnail_open_link.append($img2);
 		$(E("td")).append($thumbnail_open_link).appendTo($tr);
 		//$(E("td")).append($open_link).appendTo($tr);
 		$(E("td")).append($remove).appendTo($tr);
@@ -106,13 +108,20 @@ function manage_storage() {
 	if (localStorageAvailable) {
 		for (const k in localStorage) {
 			if (k.match(/^image#/)) {
-				let v = localStorage[k];
+				let v = localStorage[k], img = "", img2 = "";
 				try {
-					if (v[0] === '"') {
+					v = JSON.parse(v);
+					if (v[0] === '{') {
 						v = JSON.parse(v);
+						img = v.canvas;
+						img2 = v.goal;
+					}
+					else {
+						img = v;
+						img2 = JSON.parse(localStorage[k + "_goal"]);
 					}
 				} catch (_error) { /* ignore */ }
-				addRow(k, v);
+				addRow(k, img, img2);
 			}
 		}
 	}

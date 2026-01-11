@@ -112,6 +112,7 @@ function handle_data_loss() {
 class LocalSession {
 	constructor(session_id) {
 		this.id = session_id;
+		this.palette = palette;
 		const ls_key = `image#${session_id}`;
 		log(`Local storage key: ${ls_key}`);
 		// save image to storage
@@ -121,7 +122,17 @@ class LocalSession {
 				return;
 			}
 			log(`Saving image to storage: ${ls_key}`);
-			localStore.set(ls_key, main_canvas.toDataURL("image/png"), (err) => {
+			localStore.set(ls_key, JSON.stringify({
+				canvas: main_canvas.toDataURL("image/png"),
+				goal: goal_canvas.toDataURL("image/png"),
+				connection_info: {
+					"host": $("[name=aphost]").val(),
+					"port": $("[name=apport]").val(),
+					"slot": $("[name=apslot]").val(),
+					"pass": $("[name=appass]").val()
+				},
+				colors: palette
+			}), (err) => {
 				if (err) {
 					// @ts-ignore (quotaExceeded is added by storage.js)
 					if (err.quotaExceeded) {
@@ -135,7 +146,7 @@ class LocalSession {
 			});
 		};
 		this.save_image_to_storage_soon = debounce(this.save_image_to_storage_immediately, 100);
-		localStore.get(ls_key, (err, uri) => {
+		localStore.get(ls_key, (err, data) => {
 			if (err) {
 				if (localStorageAvailable) {
 					show_error_message("Failed to retrieve image from local storage.", err);
@@ -145,131 +156,97 @@ class LocalSession {
 						message: "Please enable local storage in your browser's settings for local backup. It may be called Cookies, Storage, or Site Data.",
 					});
 				}
-			} else if (uri) {
-				load_image_from_uri(uri).then((info) => {
-					open_from_image_info(info, null, null, true, true);
-				}, (error) => {
-					show_error_message("Failed to open image from local storage.", error);
-				});
+			} else if (data) {
+				try {
+					var json_data = JSON.parse(data);
+					load_image_from_uri(json_data.canvas).then((info) => {
+						open_from_image_info(info, null, null, true, true);
+					});
+					load_image_from_uri(json_data.goal).then((info) => {
+						open_from_image_info(info, null, null, true, false);
+					});
+					for (var i in json_data.connection_info) {
+						$("[name=ap" + i + "]").val(json_data.connection_info[i]);
+					}
+					this.palette = json_data.colors;
+				}
+				catch (_) {
+					load_image_from_uri(data).then((info) => {
+						open_from_image_info(info, null, null, true, true);
+						localStore.get(ls_key + "_goal", (err, uri) => {
+							if (err) {
+								if (localStorageAvailable) {
+									show_error_message("Failed to retrieve goal image from local storage.", err);
+								} else {
+									// @TODO: DRY with storage manager message
+									showMessageBox({
+										message: "Please enable local storage in your browser's settings for local backup. It may be called Cookies, Storage, or Site Data.",
+									});
+								}
+							} else if (uri) {
+								load_image_from_uri(uri).then((info) => {
+									open_from_image_info(info, null, null, true, false);
+								}, (error) => {
+									show_error_message("Failed to open goal image from local storage.", error);
+								});
+							} else { }
+						});
+						localStore.get(ls_key + "_connection_info", (err, data) => {
+							if (err) {
+								if (localStorageAvailable) {
+									show_error_message("Failed to retrieve connection info from local storage.", err);
+								} else {
+									// @TODO: DRY with storage manager message
+									showMessageBox({
+										message: "Please enable local storage in your browser's settings for local backup. It may be called Cookies, Storage, or Site Data.",
+									});
+								}
+							} else if (data) {
+								var parsedData = JSON.parse(data);
+								for (var i in parsedData) {
+									$("[name=ap" + i + "]").val(parsedData[i]);
+								}
+							} else {
+							}
+						});
+						localStore.get(ls_key + "_colors", (err, data) => {
+							if (err) {
+								if (localStorageAvailable) {
+									show_error_message("Failed to retrieve palette from local storage.", err);
+								} else {
+									// @TODO: DRY with storage manager message
+									showMessageBox({
+										message: "Please enable local storage in your browser's settings for local backup. It may be called Cookies, Storage, or Site Data.",
+									});
+								}
+							} else if (data) {
+								this.palette = JSON.parse(data);
+							} else {
+							}
+						});
+					}, () => {
+						show_error_message("Failed to open image from local storage.");
+					});
+				}
 			} else {
 				// no uri so lets save the blank canvas
 				this.save_image_to_storage_soon();
 			}
 		});
-		localStore.get(ls_key + "_goal", (err, uri) => {
-			if (err) {
-				if (localStorageAvailable) {
-					show_error_message("Failed to retrieve goal image from local storage.", err);
-				} else {
-					// @TODO: DRY with storage manager message
-					showMessageBox({
-						message: "Please enable local storage in your browser's settings for local backup. It may be called Cookies, Storage, or Site Data.",
-					});
-				}
-			} else if (uri) {
-				load_image_from_uri(uri).then((info) => {
-					open_from_image_info(info, null, null, true, false);
-				}, (error) => {
-					show_error_message("Failed to open goal image from local storage.", error);
-				});
-			} else { }
-		});
-		localStore.get(ls_key + "_connection_info", (err, data) => {
-			if (err) {
-				if (localStorageAvailable) {
-					show_error_message("Failed to retrieve connection info from local storage.", err);
-				} else {
-					// @TODO: DRY with storage manager message
-					showMessageBox({
-						message: "Please enable local storage in your browser's settings for local backup. It may be called Cookies, Storage, or Site Data.",
-					});
-				}
-			} else if (data) {
-				var parsedData = JSON.parse(data);
-				for (var i in parsedData) {
-					$("[name=ap" + i + "]").val(parsedData[i]);
-				}
-			} else {
-			}
-		});
-		this.save_colors = () => {
-			localStore.set(ls_key + "_colors", JSON.stringify(palette), (err) => {
-				if (err) {
-					// @ts-ignore (quotaExceeded is added by storage.js)
-					if (err.quotaExceeded) {
-						storage_quota_exceeded();
-					} else {
-						// e.g. localStorage is disabled
-						// (or there's some other error?)
-						// @TODO: show warning with "Don't tell me again" type option
-					}
-				}
-			});
-		}
-		this.restore_colors = () => {
-			localStore.get(ls_key + "_colors", (err, data) => {
-				if (err) {
-					if (localStorageAvailable) {
-						show_error_message("Failed to retrieve palette from local storage.", err);
-					} else {
-						// @TODO: DRY with storage manager message
-						showMessageBox({
-							message: "Please enable local storage in your browser's settings for local backup. It may be called Cookies, Storage, or Site Data.",
-						});
-					}
-				} else if (data) {
-					palette = JSON.parse(data);
-				} else {
-				}
-			});
-		}
-		this.save_goal = () => {
-			const save_paused = handle_data_loss();
-			if (save_paused) {
-				return;
-			}
-			log(`Saving goal image to storage: ${ls_key}_goal`);
-			localStore.set(ls_key + "_goal", goal_canvas.toDataURL("image/png"), (err) => {
-				if (err) {
-					// @ts-ignore (quotaExceeded is added by storage.js)
-					if (err.quotaExceeded) {
-						storage_quota_exceeded();
-					} else {
-						// e.g. localStorage is disabled
-						// (or there's some other error?)
-						// @TODO: show warning with "Don't tell me again" type option
-					}
-				}
-			});
-		};
-		this.save_connection_info = () => {
-			localStore.set(ls_key + "_connection_info", JSON.stringify({ "host": $("[name=aphost]").val(), "port": $("[name=apport]").val(), "slot": $("[name=apslot]").val(), "pass": $("[name=appass]").val() }), (err) => {
-				if (err) {
-					// @ts-ignore (quotaExceeded is added by storage.js)
-					if (err.quotaExceeded) {
-						storage_quota_exceeded();
-					} else {
-						// e.g. localStorage is disabled
-						// (or there's some other error?)
-						// @TODO: show warning with "Don't tell me again" type option
-					}
-				}
-			});
-		}
 		$G.on("session-update.session-hook", () => {
 			this.save_image_to_storage_soon();
 		});
 		$G.on("save-colors.session-hook", () => {
-			this.save_colors();
+			this.save_image_to_storage_soon();
 		});
 		$G.on("restore-colors.session-hook", () => {
-			this.restore_colors();
+			palette = this.palette;
 		});
 		$G.on("save-goal.session-hook", () => {
-			this.save_goal();
+			this.save_image_to_storage_soon();
 		});
 		$G.on("save-connection-info.session-hook", () => {
-			this.save_connection_info();
+			this.save_image_to_storage_soon();
 		});
 	}
 	end() {
