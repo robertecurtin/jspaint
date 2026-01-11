@@ -176,7 +176,7 @@ function choose_color(initial_color, callback) {
 
 	let custom_colors_index = 0;
 
-	const get_current_color = () => `hsl(${hue_degrees}deg, ${sat_percent}%, ${lum_percent}%)`;
+	const get_current_color = () => legalizeColor(`hsl(${hue_degrees}deg, ${sat_percent}%, ${lum_percent}%)`);
 	const set_color_from_rgb = (r, g, b) => {
 		const [h, s, l] = rgb_to_hsl(r, g, b);
 		hue_degrees = h * 360;
@@ -369,7 +369,7 @@ function choose_color(initial_color, callback) {
 		lum_arrow_canvas.style.left = "215px";
 		lum_arrow_canvas.style.top = `${3 + ~~((1 - lum_percent / 100) * luminosity_canvas.height)}px`;
 
-		result_canvas.ctx.fillStyle = legalizeColor(get_current_color());
+		result_canvas.ctx.fillStyle = get_current_color();
 		result_canvas.ctx.fillRect(0, 0, result_canvas.width, result_canvas.height);
 	};
 	draw();
