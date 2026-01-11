@@ -4,7 +4,7 @@ import { flip_horizontal, flip_vertical } from "./image-manipulation.js";
 
 // Create a new instance of the Client class.
 const client = new Client();
-var slotData = {}
+var slotData = {};
 
 // Set up an event listener for whenever a message arrives and print the plain-text content to the console.
 client.messages.on("message", (content) => {
@@ -15,7 +15,7 @@ var $ap_options_window = $Window({ title: "Archipelago Connection Options", mini
 	.addClass("maximized").addClass("focused").css({ left: 0, top: 0, width: "100vw", height: "100vh" });
 $ap_options_window.$content.append('<p><label>Host: <input name="aphost" value="archipelago.gg"></label></p><p><label>Port: <input name="apport" placeholder="38281"></label></p><p><label>Slot name: <input name="apslot"></label></p><p><label>Password: <input name="appass"></label></p>');
 $("<button>Connect!</button>").on("click", function () {
-	client.login($("[name=aphost]").val() + ":" + $("[name=apport]").val(), $("[name=apslot]").val(), "Paint", { "password": $("[name=appass]").val(), })
+	client.login($("[name=aphost]").val() + ":" + $("[name=apport]").val(), $("[name=apslot]").val(), "Paint", { "password": $("[name=appass]").val() })
 		.then(function (e) {
 			console.log("Connected to the Archipelago server!", e);
 			slotData = e;
@@ -30,7 +30,7 @@ $("<button>Connect!</button>").on("click", function () {
 				client.deathLink.on("deathReceived", function () {
 					reset_canvas_and_history();
 					update();
-				})
+				});
 			}
 			client.messages.on("message", onMessage);
 			client.items.on("itemsReceived", onReceive);
@@ -38,13 +38,13 @@ $("<button>Connect!</button>").on("click", function () {
 				client.messages.off("message", onMessage);
 				client.items.off("itemsReceived", onReceive);
 				$ap_options_window.show();
-			})
+			});
 			$ap_options_window.hide();
 		})
 		.catch(function (e) {
 			console.error(e);
 			alert(e);
-		})
+		});
 }).appendTo($ap_options_window.$content);
 
 function send(similarity) {
@@ -128,7 +128,7 @@ function update() {
 			case "Polygon":
 			case "Ellipse":
 			case "Rounded Rectangle":
-				$('#TOOL_' + item.split("/")[0].split(" With")[0].replace(" ", "_").replace("-", "_").toUpperCase() + '').removeClass("disabled");
+				$("#TOOL_" + item.split("/")[0].split(" With")[0].replace(" ", "_").replace("-", "_").toUpperCase() + "").removeClass("disabled");
 				break;
 			case "Progressive Canvas Width":
 				if (w < 800) w += slotData.canvas_size_increment ?? 100;
@@ -140,7 +140,7 @@ function update() {
 	}
 	default_tool = get_tool_by_id("TOOL_" +
 		["Brush", "Pencil", "Eraser/Color Eraser", "Airbrush", "Line", "Rectangle", "Ellipse", "Rounded Rectangle"]
-			.filter(a => received().includes(a))[0].split("/")[0].replace(" ", "_").toUpperCase());
+			.filter((a) => received().includes(a))[0].split("/")[0].replace(" ", "_").toUpperCase());
 	resize_canvas_without_saving_dimensions(w, h);
 	$colorbox.rebuild_palette(palette);
 	calculate_similarity();
@@ -171,7 +171,7 @@ function show_text_client() {
 		$("#ap-command").off("keyup");
 	}
 	$text_client_window = $Window({ title: localize("Archipelago Text Client"), resizable: true, innerHeight: 300, innerWidth: 600 });
-	$text_client_window.onClosed(function () { $("body").append($("#text-client").css("display", "none")); })
+	$text_client_window.onClosed(function () { $("body").append($("#text-client").css("display", "none")); });
 	$text_client_window.$content.append($("#text-client").css("display", "flex"));
 	$text_client_window.center();
 	$("#ap-command").on("keyup", function (e) {

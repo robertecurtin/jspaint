@@ -37,6 +37,9 @@
 		// Also, VS Code's markdown formatter doesn't handle emoji in tables as well as it could.
 		"editor.formatOnSave": false,
 	},
+	"[js]": {
+		"editor.formatOnSave": false,
+	},
 	// Note: this doesn't apply to "JSON with comments" files, such as this one. That's [jsonc].
 	"[json]": {
 		// npm respects different indent styles, but always adds a newline at the end of package.json/package-lock.json,
