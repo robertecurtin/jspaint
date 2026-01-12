@@ -162,9 +162,7 @@ class LocalSession {
 					load_image_from_uri(json_data.canvas).then((info) => {
 						open_from_image_info(info, null, null, true, true);
 					});
-					load_image_from_uri(json_data.goal).then((info) => {
-						open_from_image_info(info, null, null, true, false);
-					});
+					$goal_image.attr("src", json_data.goal);
 					for (var i in json_data.connection_info) {
 						$("[name=ap" + i + "]").val(json_data.connection_info[i]);
 					}

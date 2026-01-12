@@ -115,7 +115,7 @@ declare interface I$ToolBox {
 }
 // $ColorBox.js
 declare interface I$ColorBox {
-	rebuild_palette(): void;
+	rebuild_palette(palette?: (string | CanvasPattern)[]): void;
 }
 
 // $Component.js

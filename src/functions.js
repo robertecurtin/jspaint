@@ -7,7 +7,7 @@ import { $DialogWindow } from "./$ToolWindow.js";
 import { OnCanvasHelperLayer } from "./OnCanvasHelperLayer.js";
 import { OnCanvasSelection } from "./OnCanvasSelection.js";
 import { OnCanvasTextBox } from "./OnCanvasTextBox.js";
-import { deathlink, received, send, slotData, version_below } from "./archipelago.js";
+import { deathlink, final_height, final_width, received, send, slotData, version_below } from "./archipelago.js";
 // import { localize } from "./app-localization.js";
 import { default_palette } from "./color-data.js";
 import { image_formats } from "./file-format-data.js";
@@ -988,7 +988,7 @@ function open_from_image_info(info, callback, canceled, into_existing_session, f
 	}
 	else {
 		createImageBitmap(info.image || info.image_data).then(function (e) {
-			goal_ctx.drawImage(e, 0, 0, 800, 600);
+			goal_ctx.drawImage(e, 0, 0, goal_canvas.width, goal_canvas.height);
 			$G.triggerHandler("save-goal");
 		});
 	}
@@ -2126,12 +2126,12 @@ function go_to_history_node(target_history_node, canceling) {
 function calculate_similarity() {
 	var s = 0;
 	var main_pixels = main_canvas.ctx.getImageData(0, 0, main_canvas.width, main_canvas.height);
-	var goal_pixels = goal_canvas.ctx.getImageData(0, 0, 800, 600);
-	var sim_pixels = sim_ctx.createImageData(800, 600);
+	var goal_pixels = goal_canvas.ctx.getImageData(0, 0, final_width, final_height);
+	var sim_pixels = sim_ctx.createImageData(final_width, final_height);
 	var diff_pixels = goal_pixels;
-	for (var x = 0; x < 800; x++) {
-		for (var y = 0; y < 600; y++) {
-			var goal_offset = (x + y * 800) * 4;
+	for (var x = 0; x < final_width; x++) {
+		for (var y = 0; y < final_height; y++) {
+			var goal_offset = (x + y * final_width) * 4;
 			if (x < main_canvas.width && y < main_canvas.height) {
 				var main_offset = (x + y * main_canvas.width) * 4;
 				var pixel_similarity = 0;
@@ -2163,7 +2163,7 @@ function calculate_similarity() {
 	}
 	sim_ctx.putImageData(sim_pixels, 0, 0);
 	diff_ctx.putImageData(diff_pixels, 0, 0);
-	s /= 4800;
+	s *= 100 / (final_width * final_height);
 	$status_similarity.text(s.toFixed(3) + "%/" + calculate_logic_similarity().toFixed(3) + "%");
 	return s;
 }
@@ -2173,8 +2173,8 @@ function calculate_logic_similarity() {
 	var r = Math.min(items.filter(x => x == "Progressive Color Depth (Red)").length, 7);
 	var g = Math.min(items.filter(x => x == "Progressive Color Depth (Green)").length, 7);
 	var b = Math.min(items.filter(x => x == "Progressive Color Depth (Blue)").length, 7);
-	var w = Math.min(items.filter(x => x == "Progressive Canvas Width").length * (slotData.canvas_size_increment ?? 100), 400);
-	var h = Math.min(items.filter(x => x == "Progressive Canvas Height").length * (slotData.canvas_size_increment ?? 100), 300);
+	var w = Math.min(items.filter(x => x == "Progressive Canvas Width").length * (slotData.canvas_width_increment ?? slotData.canvas_size_increment ?? 100), final_width / 2);
+	var h = Math.min(items.filter(x => x == "Progressive Canvas Height").length * (slotData.canvas_height_increment ?? slotData.canvas_size_increment ?? 100), final_height / 2);
 	var p = items.includes("Pick Color");
 	if (!p) {
 		r = Math.min(r, 2);
@@ -2189,7 +2189,7 @@ function calculate_logic_similarity() {
 		per_pixel = 1 - (Math.sqrt(((2 ** (7 - r) - 1) ** 2 + (2 ** (7 - g) - 1) ** 2 + (2 ** (7 - b) - 1) ** 2) * 3)) / 765;
 		if (!version_below("0.5.0")) per_pixel = 2 * per_pixel - 1;
 	}
-	return per_pixel * (400 + w) * (300 + h) * slotData.logic_percent / 480000
+	return per_pixel * (final_width / 2 + w) * (final_height / 2 + h) * slotData.logic_percent / (final_width * final_height);
 }
 
 // Note: This function is part of the API.

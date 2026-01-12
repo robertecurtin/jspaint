@@ -5,6 +5,8 @@ import { flip_horizontal, flip_vertical } from "./image-manipulation.js";
 // Create a new instance of the Client class.
 const client = new Client();
 var slotData = {};
+var final_width = 800;
+var final_height = 600;
 
 // Set up an event listener for whenever a message arrives and print the plain-text content to the console.
 client.messages.on("message", (content) => {
@@ -20,7 +22,21 @@ $("<button>Connect!</button>").on("click", function () {
 			console.log("Connected to the Archipelago server!", e);
 			slotData = e;
 			if (slotData.version) $("#appaint-version").text("APWorld Version " + slotData.version);
-			//$goal_image.src = "images/archipelago/" + slotData.goal_image + ".png";
+			if (slotData.final_width) final_width = slotData.final_width;
+			if (slotData.final_height) final_height = slotData.final_height;
+			goal_canvas.width = final_width;
+			goal_canvas.height = final_height;
+			$goal.width(final_width)
+			$goal.height(final_height)
+			diff_canvas.width = final_width;
+			diff_canvas.height = final_height;
+			$diff.width(final_width)
+			$diff.height(final_height)
+			sim_canvas.width = final_width;
+			sim_canvas.height = final_height;
+			$sim.width(final_width)
+			$sim.height(final_height)
+			$goal_image.attr("src", $goal_image.attr("src") ?? ("images/archipelago/" + final_width + "x" + final_height + ".png"));
 			$G.triggerHandler("save-connection-info");
 			$G.triggerHandler("restore-colors");
 			update();
@@ -104,8 +120,8 @@ function onMessage(message) {
 
 function update() {
 	var c = 2;
-	var w = 400;
-	var h = 300;
+	var w = final_width / 2;
+	var h = final_height / 2;
 	for (var item of received()) {
 		switch (item) {
 			case "Additional Palette Color":
@@ -131,10 +147,10 @@ function update() {
 				$("#TOOL_" + item.split("/")[0].split(" With")[0].replace(" ", "_").replace("-", "_").toUpperCase() + "").removeClass("disabled");
 				break;
 			case "Progressive Canvas Width":
-				if (w < 800) w += slotData.canvas_size_increment ?? 100;
+				w = Math.min(w + (slotData.canvas_width_increment ?? slotData.canvas_size_increment ?? 100), final_width);
 				break;
 			case "Progressive Canvas Height":
-				if (h < 600) h += slotData.canvas_size_increment ?? 100;
+				h = Math.min(h + (slotData.canvas_height_increment ?? slotData.canvas_size_increment ?? 100), final_height);
 				break;
 		}
 	}
@@ -195,5 +211,5 @@ function version_below(version) {
 	return false;
 }
 
-export { deathlink, received, send, show_text_client, slotData, version_below };
+export { deathlink, final_height, final_width, received, send, show_text_client, slotData, version_below };
 
