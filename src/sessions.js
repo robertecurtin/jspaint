@@ -159,6 +159,7 @@ class LocalSession {
 			} else if (data) {
 				try {
 					var json_data = JSON.parse(data);
+					if (!json_data || !json_data.canvas) throw Error();
 					load_image_from_uri(json_data.canvas).then((info) => {
 						open_from_image_info(info, null, null, true, true);
 					});
