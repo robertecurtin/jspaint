@@ -107,7 +107,7 @@ function manage_storage() {
 
 	if (localStorageAvailable) {
 		for (const k in localStorage) {
-			if (k.match(/^image#/)) {
+			if (k.match(/^image#/) && !k.match(/_/)) {
 				let v = localStorage[k], img = "", img2 = "";
 				try {
 					v = JSON.parse(v);
