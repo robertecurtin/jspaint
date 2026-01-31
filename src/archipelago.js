@@ -1,6 +1,8 @@
 import { Client } from "../lib/archipelago.min.js";
-import { calculate_similarity, clear, image_invert_colors, reset_canvas_and_history, resize_canvas_without_saving_dimensions, select_tool, undo } from "./functions.js";
+import { calculate_similarity, clear, image_invert_colors, reset_canvas_and_history, resize_canvas_without_saving_dimensions, select_tool, set_magnification, undo } from "./functions.js";
+import { show_help } from "./help.js";
 import { flip_horizontal, flip_vertical } from "./image-manipulation.js";
+import { tools } from "./tools.js";
 
 // Create a new instance of the Client class.
 const client = new Client();
@@ -48,6 +50,14 @@ $("<button>Connect!</button>").on("click", function () {
 					update();
 				});
 			}
+			if (slotData.trap_link) {
+				client.updateTags(client.arguments.tags.concat(["TrapLink"]));
+				client.socket.on("bounced", function (packet, data) {
+					if (packet.tags.includes("TrapLink") && data.source != client.name) {
+						handleTrap(data.trap_name, true);
+					}
+				});
+			}
 			client.messages.on("message", onMessage);
 			client.items.on("itemsReceived", onReceive);
 			client.socket.on("disconnected", function () {
@@ -89,26 +99,95 @@ function received() {
 	return items;
 }
 
+function handleTrap(name, isLinked) {
+	switch (name) {
+		case "Undo Trap":
+		case "Damage Trap":
+		case "Fear Trap":
+		case "Reversal Trap":
+		case "Reverse Trap":
+		case "Whoops! Trap":
+			if (!slotData.death_link && (!slotData.trap_blacklist || !slotData.trap_blacklist.includes("Undo Trap"))) {
+				undo();
+			}
+			break;
+		case "Clear Image Trap":
+		case "Blue Balls Curse":
+		case "Home Trap":
+		case "Instant Death Trap":
+			if (!slotData.death_link && (!slotData.trap_blacklist || !slotData.trap_blacklist.includes("Clear Image Trap"))) {
+				clear();
+			}
+			break;
+		case "Invert Colors Trap":
+		case "Spooky Time":
+			if (!slotData.trap_blacklist || !slotData.trap_blacklist.includes("Invert Colors Trap")) {
+				image_invert_colors();
+			}
+			break;
+		case "Flip Horizontal Trap":
+		case "Flip Trap":
+		case "Mirror Trap":
+			if (!slotData.trap_blacklist || !slotData.trap_blacklist.includes("Flip Horizontal Trap")) {
+				flip_horizontal();
+			}
+			break;
+		case "Flip Vertical Trap":
+		case "Camera Rotate Trap":
+		case "Screen Flip Trap":
+			if (!slotData.trap_blacklist || !slotData.trap_blacklist.includes("Flip Vertical Trap")) {
+				flip_vertical();
+			}
+			break;
+		case "Help Trap":
+		case "Exposition Trap":
+		case "Literature Trap":
+		case "Phone Trap":
+		case "Spam Trap":
+		case "Text Trap":
+		case "Tip Trap":
+		case "Tutorial Trap":
+			if (!slotData.trap_blacklist || !slotData.trap_blacklist.includes("Help Trap")) {
+				show_help();
+			}
+			break;
+		case "Zoom In Trap":
+		case "Pixelate Trap":
+		case "Pixellation Trap":
+		case "Spotlight Trap":
+		case "Zoom Trap":
+			if (!slotData.trap_blacklist || !slotData.trap_blacklist.includes("Zoom In Trap")) {
+				set_magnification(8);
+			}
+			break;
+		case "Zoom Out Trap":
+		case "144p Trap":
+		case "Deisometric Trap":
+		case "Tiny Trap":
+			if (!slotData.trap_blacklist || !slotData.trap_blacklist.includes("Zoom Out Trap")) {
+				set_magnification(0.25);
+			}
+			break;
+		case "Tool Swap Trap":
+		case "Animal Trap":
+		case "Eject Ability":
+		case "Gadget Shuffle Trap":
+		case "Swap Trap":
+			if (!slotData.trap_blacklist || !slotData.trap_blacklist.includes("Tool Swap Trap")) {
+				var t = tools.filter((a) => a != selected_tool && !a.$button.hasClass("disabled"));
+				select_tool(t[Math.floor(Math.random() * t.length)]);
+			}
+			break;
+	}
+	if (!isLinked && slotData.trap_link) {
+		client.bounce({ tags: ["TrapLink"] }, { time: new Date().getTime(), source: client.name, trap_name: name });
+	}
+}
+
 function onReceive(items) {
 	for (var item of items) {
 		if (item.name.endsWith("Trap")) {
-			switch (item.name) {
-				case "Undo Trap":
-					undo();
-					break;
-				case "Clear Image Trap":
-					clear();
-					break;
-				case "Invert Colors Trap":
-					image_invert_colors();
-					break;
-				case "Flip Horizontal Trap":
-					flip_horizontal();
-					break;
-				case "Flip Vertical Trap":
-					flip_vertical();
-					break;
-			}
+			handleTrap(item.name, false);
 		}
 	}
 	update();
