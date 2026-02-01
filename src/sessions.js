@@ -229,7 +229,7 @@ class LocalSession {
 				}
 			} else {
 				// no uri so lets save the blank canvas
-				this.save_image_to_storage_soon();
+				// this.save_image_to_storage_soon();
 			}
 		});
 		$G.on("session-update.session-hook", () => {

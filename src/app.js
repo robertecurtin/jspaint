@@ -427,7 +427,10 @@ window.canvas_handles = canvas_handles;
 
 const $goal = $(goal_canvas).css("left", "810px").appendTo($canvas_area);
 var $goal_image = new Image();
-$goal_image.onload = function () { goal_ctx.drawImage(this, 0, 0, goal_canvas.width, goal_canvas.height); };
+$goal_image.onload = function () {
+	goal_ctx.drawImage(this, 0, 0, goal_canvas.width, goal_canvas.height);
+	$G.triggerHandler("save-goal");
+};
 window.$goal = $goal;
 window.$goal_image = $($goal_image);
 
