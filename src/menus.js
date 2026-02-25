@@ -40,6 +40,16 @@ const menus = {
 			description: localize("Opens an existing document."),
 		},
 		{
+			label: localize("&Load Target Image From File"),
+			...shortcut("Ctrl+Alt+O"),
+			speech_recognition: [
+				"open target",
+			],
+			enabled: true,
+			action: () => { file_open(false); },
+			description: localize("Writes the provided file as your target image."),
+		},
+		{
 			label: localize("&Save"),
 			...shortcut("Ctrl+S"),
 			speech_recognition: [

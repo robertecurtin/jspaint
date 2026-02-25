@@ -961,9 +961,9 @@ async function load_image_from_uri(uri) {
  * @param {() => void} [callback]
  * @param {() => void} [canceled]
  * @param {boolean} [into_existing_session]
- * @param {boolean} [from_session_load]
+ * @param {boolean} [targetImage]
  */
-function open_from_image_info(info, callback, canceled, into_existing_session, from_session_load) {
+function open_from_image_info(info, callback, canceled, into_existing_session, targetImage) {
 	/*are_you_sure(({ canvas_modified_while_loading } = {}) => {
 		deselect();
 		cancel();
@@ -978,7 +978,7 @@ function open_from_image_info(info, callback, canceled, into_existing_session, f
 	reset_canvas_and_history(); // (with newly reset colors)
 	set_magnification(default_magnification);*/
 
-	if (from_session_load) {
+	if (targetImage) {
 		createImageBitmap(info.image || info.image_data).then(function (e) {
 			main_ctx.drawImage(e, 0, 0, e.width, e.height)
 			current_history_node.name = localize("Open");
@@ -1031,7 +1031,7 @@ function open_from_image_info(info, callback, canceled, into_existing_session, f
  * @param {Blob} file
  * @param {UserFileHandle} source_file_handle
  */
-function open_from_file(file, source_file_handle) {
+function open_from_file(file, source_file_handle, targetImage) {
 	// The browser isn't very smart about MIME types.
 	// It seems to look at the file extension, but not the actual file contents.
 	// This is particularly problematic for files with no extension, where file.type gives an empty string.
@@ -1063,7 +1063,7 @@ function open_from_file(file, source_file_handle) {
 			return;
 		}
 		image_info.source_file_handle = source_file_handle;
-		open_from_image_info(image_info);
+		open_from_image_info(image_info, targetImage = targetImage);
 	});
 }
 
@@ -1119,10 +1119,11 @@ function file_new() {
 	set_magnification(default_magnification);
 }
 
-async function file_open() {
+async function file_open(targetImage = true) {
 	const { file, fileHandle } = await systemHooks.showOpenFileDialog({ formats: image_formats });
-	open_from_file(file, fileHandle);
+	open_from_file(file, fileHandle, targetImage);
 }
+
 
 /** @type {OSGUI$Window} */
 let $file_load_from_url_window;
