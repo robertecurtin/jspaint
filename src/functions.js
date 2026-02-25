@@ -961,9 +961,9 @@ async function load_image_from_uri(uri) {
  * @param {() => void} [callback]
  * @param {() => void} [canceled]
  * @param {boolean} [into_existing_session]
- * @param {boolean} [targetImage]
+ * @param {boolean} [target_image]
  */
-function open_from_image_info(info, callback, canceled, into_existing_session, targetImage) {
+function open_from_image_info(info, callback, canceled, into_existing_session, target_image) {
 	/*are_you_sure(({ canvas_modified_while_loading } = {}) => {
 		deselect();
 		cancel();
@@ -978,7 +978,7 @@ function open_from_image_info(info, callback, canceled, into_existing_session, t
 	reset_canvas_and_history(); // (with newly reset colors)
 	set_magnification(default_magnification);*/
 
-	if (targetImage) {
+	if (!target_image) {
 		createImageBitmap(info.image || info.image_data).then(function (e) {
 			main_ctx.drawImage(e, 0, 0, e.width, e.height)
 			current_history_node.name = localize("Open");
