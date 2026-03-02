@@ -3,7 +3,7 @@
 /* global $canvas_area, $colorbox, $status_area, $toolbox, available_languages, get_iso_language_name, get_language, get_language_emoji, get_language_endonym, localize, magnification, main_canvas, menu_bar, MENU_DIVIDER, redos, selection, set_language, show_grid, show_thumbnail, systemHooks, undos */
 // import { available_languages, get_iso_language_name, get_language, get_language_emoji, get_language_endonym, localize, set_language } from "./app-localization.js";
 import { received, show_text_client } from "./archipelago.js";
-import { are_you_sure, change_url_param, clear, delete_selection, deselect, edit_copy, edit_cut, file_new, file_open, file_print, file_save, file_save_as, image_attributes, image_flip_and_rotate, image_invert_colors, redo, render_history_as_gif, sanity_check_blob, save_selection_to_file, select_all, set_magnification, show_about_paint, show_custom_zoom_window, show_document_history, toggle_grid, toggle_thumbnail, undo, update_magnified_canvas_size, view_bitmap } from "./functions.js";
+import { are_you_sure, change_url_param, clear, delete_selection, deselect, edit_copy, edit_cut, file_new, file_open, file_print, file_save, file_save_as, image_attributes, image_flip_and_rotate, image_invert_colors, load_saved_drawing, redo, render_history_as_gif, sanity_check_blob, save_selection_to_file, select_all, set_magnification, show_about_paint, show_custom_zoom_window, show_document_history, toggle_grid, toggle_thumbnail, undo, update_magnified_canvas_size, view_bitmap } from "./functions.js";
 import { show_help } from "./help.js";
 import { is_discord_embed } from "./helpers.js";
 import { show_imgur_uploader } from "./imgur.js";
@@ -40,14 +40,14 @@ const menus = {
 			description: localize("Opens an existing document."),
 		},
 		{
-			label: localize("&Load Your Image From File"),
+			label: localize("&Load Saved Drawing"),
 			...shortcut("Ctrl+Alt+O"),
 			speech_recognition: [
-				"open target",
+				"load saved drawing",
 			],
 			enabled: true,
-			action: () => { file_open(false); },
-			description: localize("Writes the provided file as your target image."),
+			action: () => { load_saved_drawing(); },
+			description: localize("Writes the provided file as your drawing."),
 		},
 		{
 			label: localize("&Save"),

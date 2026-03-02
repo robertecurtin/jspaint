@@ -961,9 +961,9 @@ async function load_image_from_uri(uri) {
  * @param {() => void} [callback]
  * @param {() => void} [canceled]
  * @param {boolean} [into_existing_session]
- * @param {boolean} [target_image]
+ * @param {boolean} [load_into_goal_image]
  */
-function open_from_image_info(info, callback, canceled, into_existing_session, target_image) {
+function open_from_image_info(info, callback, canceled, into_existing_session, load_into_goal_image) {
 	/*are_you_sure(({ canvas_modified_while_loading } = {}) => {
 		deselect();
 		cancel();
@@ -978,18 +978,18 @@ function open_from_image_info(info, callback, canceled, into_existing_session, t
 	reset_canvas_and_history(); // (with newly reset colors)
 	set_magnification(default_magnification);*/
 
-	if (!target_image) {
+	if (load_into_goal_image) {
+		createImageBitmap(info.image || info.image_data).then(function (e) {
+			goal_ctx.drawImage(e, 0, 0, goal_canvas.width, goal_canvas.height);
+			$G.triggerHandler("save-goal");
+		});
+	}
+	else {
 		createImageBitmap(info.image || info.image_data).then(function (e) {
 			main_ctx.drawImage(e, 0, 0, e.width, e.height)
 			current_history_node.name = localize("Open");
 			current_history_node.image_data = main_ctx.getImageData(0, 0, main_canvas.width, main_canvas.height);
 			current_history_node.icon = get_help_folder_icon("p_open.png");
-		});
-	}
-	else {
-		createImageBitmap(info.image || info.image_data).then(function (e) {
-			goal_ctx.drawImage(e, 0, 0, goal_canvas.width, goal_canvas.height);
-			$G.triggerHandler("save-goal");
 		});
 	}
 	/*apply_file_format_and_palette_info(info);
@@ -1124,6 +1124,23 @@ async function file_open(targetImage = true) {
 	open_from_file(file, fileHandle, targetImage);
 }
 
+async function load_saved_drawing() {
+	const { $window, promise } = showMessageBox({
+		messageHTML: `
+			<p>WARNING</p>
+			<p>This will overwrite your current drawing progress with a saved image.</p>
+			<p>Are you sure you want to load a saved image as your drawing?</p>
+		`,
+		buttons: [
+			{ label: localize("Yes"), value: "yes", default: true },
+			{ label: localize("Cancel"), value: "cancel" },
+		],
+	});
+	const result = await promise;
+	if (result === "yes") {
+		await file_open(false)
+	}
+}
 
 /** @type {OSGUI$Window} */
 let $file_load_from_url_window;
@@ -4306,7 +4323,7 @@ export {
 	$this_version_news,
 	apply_file_format_and_palette_info, are_you_sure, calculate_similarity, cancel, change_some_url_params, change_url_param, choose_file_to_paste, cleanup_bitmap_view, clear, confirm_overwrite_capability, delete_selection, deselect, detect_monochrome,
 	edit_copy, edit_cut, edit_paste, exit_fullscreen_if_ios, file_load_from_url, file_new, file_open, file_print, file_save,
-	file_save_as, getSelectionText, get_all_url_params, get_history_ancestors, get_tool_by_id, get_uris, get_url_param, go_to_history_node, handle_keyshortcuts, has_any_transparency, image_attributes, image_flip_and_rotate, image_invert_colors, image_stretch_and_skew, load_image_from_uri, load_theme_from_text, make_history_node, make_monochrome_palette, make_monochrome_pattern, make_opaque, make_or_update_undoable, make_stripe_pattern, meld_selection_into_canvas,
+	file_save_as, getSelectionText, get_all_url_params, get_history_ancestors, get_tool_by_id, get_uris, get_url_param, go_to_history_node, handle_keyshortcuts, has_any_transparency, image_attributes, image_flip_and_rotate, image_invert_colors, image_stretch_and_skew, load_image_from_uri, load_saved_drawing, load_theme_from_text, make_history_node, make_monochrome_palette, make_monochrome_pattern, make_opaque, make_or_update_undoable, make_stripe_pattern, meld_selection_into_canvas,
 	meld_textbox_into_canvas, open_from_file, open_from_image_info, paste, paste_image_from_file, please_enter_a_number, read_image_file, redo, render_canvas_view, render_history_as_gif, reset_canvas_and_history, reset_file, reset_selected_colors, resize_canvas_and_save_dimensions, resize_canvas_without_saving_dimensions, sanity_check_blob, save_as_prompt, save_selection_to_file, select_all, select_tool, select_tools, set_all_url_params, set_magnification, show_about_paint, show_convert_to_black_and_white, show_custom_zoom_window, show_document_history, show_error_message, show_file_format_errors, show_multi_user_setup_dialog, show_news, show_resource_load_error_message, switch_to_polychrome_palette, toggle_grid,
 	toggle_thumbnail, try_exec_command, undo, undoable, update_canvas_rect, update_css_classes_for_conditional_messages, update_disable_aa, update_from_saved_file, update_helper_layer,
 	update_helper_layer_immediately, update_magnified_canvas_size, update_title, view_bitmap, write_image_file
