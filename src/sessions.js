@@ -135,7 +135,7 @@ class LocalSession {
 				return;
 			}
 			log(`Saving image to storage: ${ls_key}`);
-			localStore.set(ls_key, this.collect_session_data()),
+			localStore.set(ls_key, this.collect_session_data(),
 				(err) => {
 					if (err) {
 						// @ts-ignore (quotaExceeded is added by storage.js)
@@ -147,7 +147,7 @@ class LocalSession {
 							// @TODO: show warning with "Don't tell me again" type option
 						}
 					}
-				});
+				})
 		};
 		this.save_image_to_storage_soon = debounce(this.save_image_to_storage_immediately, 100);
 		localStore.get(ls_key, (err, data) => {
