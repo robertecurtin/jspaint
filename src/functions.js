@@ -796,8 +796,8 @@ function get_uris(text) {
  * @returns {Promise<ImageInfo>}
  * @throws {Error & { code?: string }}
  */
-async function load_image_from_uri(uri) {
 
+async function load_image_from_uri(uri) {
 	// Cases to consider:
 	// - data URI
 	// - blob URI
