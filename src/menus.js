@@ -152,7 +152,7 @@ const menus = {
 			label: localize("Import Session..."),
 			action: () => { window.import_local_session(); },
 			description: localize("Imports a session file and loads it."),
-    },
+		},
 		MENU_DIVIDER,
 		{
 			label: localize("Print Pre&view"),
