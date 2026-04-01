@@ -109,6 +109,23 @@ function handle_data_loss() {
 	return save_paused;
 }
 
+function save_image_to_storage(key, value) {
+	log(`Saving image to storage: ${key}`);
+	localStore.set(key, value,
+		(err) => {
+			if (err) {
+				// @ts-ignore (quotaExceeded is added by storage.js)
+				if (err.quotaExceeded) {
+					storage_quota_exceeded();
+				} else {
+					// e.g. localStorage is disabled
+					// (or there's some other error?)
+					// @TODO: show warning with "Don't tell me again" type option
+				}
+			}
+		})
+}
+
 class LocalSession {
 	constructor(session_id) {
 		this.id = session_id;
@@ -134,20 +151,7 @@ class LocalSession {
 			if (save_paused) {
 				return;
 			}
-			log(`Saving image to storage: ${ls_key}`);
-			localStore.set(ls_key, this.collect_session_data(),
-				(err) => {
-					if (err) {
-						// @ts-ignore (quotaExceeded is added by storage.js)
-						if (err.quotaExceeded) {
-							storage_quota_exceeded();
-						} else {
-							// e.g. localStorage is disabled
-							// (or there's some other error?)
-							// @TODO: show warning with "Don't tell me again" type option
-						}
-					}
-				})
+			save_image_to_storage(ls_key, this.collect_session_data());
 		};
 		this.save_image_to_storage_soon = debounce(this.save_image_to_storage_immediately, 100);
 		localStore.get(ls_key, (err, data) => {
@@ -1168,19 +1172,7 @@ async function import_local_session() {
 	end_current_session();
 
 	try {
-		localStore.set(`image#${payload.session_id}`, payload.data,
-			(err) => {
-				if (err) {
-					// @ts-ignore (quotaExceeded is added by storage.js)
-					if (err.quotaExceeded) {
-						storage_quota_exceeded();
-					} else {
-						// e.g. localStorage is disabled
-						// (or there's some other error?)
-						// @TODO: show warning with "Don't tell me again" type option
-					}
-				}
-			});
+		save_image_to_storage(`image#${payload.session_id}`, payload.data);
 	} catch (error) {
 		show_error_message(localize("Failed to write session data to local storage."), error);
 		return;
